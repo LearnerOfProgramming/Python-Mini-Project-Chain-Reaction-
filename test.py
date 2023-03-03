@@ -7,13 +7,14 @@ import os
 from pygame.locals import *
 
 def drawGrid():
-    #drawing the grid
     midx = int(WINDOW_WIDTH/2)
     midy = int(WINDOW_HEIGHT/2)
     startx = midx-200
     stopx = midx+200
-    starty = midy-200
-    stopy = midy+200
+    starty = midy-300
+    stopy = midy+300
+
+    #drawing the grid
     for x in range(startx, stopx, blockSize):
         for y in range(starty, stopy, blockSize):
             rect = pygame.Rect(x, y, blockSize, blockSize)
@@ -27,10 +28,9 @@ def check_pressed ():
     click = pygame.mouse.get_pressed()
     #loop to check which cell was pressed
     for cell in Grid:
-        if click == (0, 0, 0) :
-            if mousex >= cell.x and mousex <= cell.x + blockSize and mousey >= cell.y and mousey <= cell.y + blockSize:
-                # pygame.mouse.set_visible(0)
-                pygame.draw.circle(screen, (140,0,100), (centre_x+cell.x, centre_y+cell.y), 20)
+        if mousex > cell.x and mousex < cell.x + blockSize and mousey > cell.y and mousey < cell.y + blockSize:
+            # pygame.mouse.set_visible(0)
+            pygame.draw.circle(screen, (140,0,100), (centre_x+cell.x, centre_y+cell.y), 20)
 
 
 global WHITE,WINDOW_HEIGHT,WINDOW_WIDTH,Grid,blockSize,screen

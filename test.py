@@ -25,7 +25,7 @@ def check_pressed ():
     centre_x = blockSize/2
     centre_y = blockSize/2
     mousex ,mousey = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
+    # click = pygame.mouse.get_pressed()
     #loop to check which cell was pressed
     for cell in Grid:
         if mousex > cell.x and mousex < cell.x + blockSize and mousey > cell.y and mousey < cell.y + blockSize:

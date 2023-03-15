@@ -24,7 +24,7 @@ playerColor = [red, green, violet, yellow]
 font = pygame.font.SysFont("Times New Roman", 30)
 
 blocks = 40
-noPlayers = 2
+noPlayers = 4
 
 pygame.display.set_caption("Chain Reaction %d Player" % noPlayers)
 

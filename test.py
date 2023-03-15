@@ -1,70 +1,252 @@
 import pygame
-
 import sys
+from math import *
 
-import os
+# Initialization of Pygame
+pygame.init()
 
-from pygame.locals import *
-
-def drawGrid():
-    midx = int(WINDOW_WIDTH/2)
-    midy = int(WINDOW_HEIGHT/2)
-    startx = midx-200
-    stopx = midx+200
-    starty = midy-300
-    stopy = midy+300
-
-    #drawing the grid
-    for x in range(startx, stopx, blockSize):
-        for y in range(starty, stopy, blockSize):
-            rect = pygame.Rect(x, y, blockSize, blockSize)
-            Grid.append(rect)
-            pygame.draw.rect(screen, WHITE, rect, 1)
-
-def check_pressed ():
-    centre_x = blockSize/2
-    centre_y = blockSize/2
-    mousex ,mousey = pygame.mouse.get_pos()
-    # click = pygame.mouse.get_pressed()
-    #loop to check which cell was pressed
-    for cell in Grid:
-        if mousex > cell.x and mousex < cell.x + blockSize and mousey > cell.y and mousey < cell.y + blockSize:
-            # pygame.mouse.set_visible(0)
-            pygame.draw.circle(screen, (140,0,100), (centre_x+cell.x, centre_y+cell.y), 20)
-
-
-global WHITE,WINDOW_HEIGHT,WINDOW_WIDTH,Grid,blockSize,screen
-blockSize = 60
-Grid = []
-WHITE = (200,200,200)
-WINDOW_WIDTH = 600
-WINDOW_HEIGHT = 700
-
-pygame.init()  # initialize pygame
-
+width = 400
+height = 400
+display = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
 
-screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-background = pygame.Surface(screen.get_size())
-background = background.convert()
-background.fill((250,250,250))
-screen.blit(background, (0,0))
+# Colors
+background = (21, 67, 96)
+border = (208, 211, 212)
+red = (231, 76, 60)
+white = (244, 246, 247)
+violet = (136, 78, 160)
+yellow = (244, 208, 63)
+green = (88, 214, 141)
 
-pygame.mouse.set_visible(1)
+playerColor = [red, green, violet, yellow]
 
-pygame.display.set_caption('Chain Reaction Game')
+font = pygame.font.SysFont("Times New Roman", 30)
 
-while True:
-    clock.tick(60)# Max FPS
-    # screen.blit(bg, (0, 0))
-    x, y = pygame.mouse.get_pos()
-    drawGrid()
+blocks = 40
+noPlayers = 2
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        if event.type == MOUSEBUTTONDOWN:
-            check_pressed()
+pygame.display.set_caption("Chain Reaction %d Player" % noPlayers)
 
-    pygame.display.update()#Refreshes the screen
+score = []
+for i in range(noPlayers):
+    score.append(0)
 
+players = []
+for i in range(noPlayers):
+    players.append(playerColor[i])
+
+d = blocks // 2 - 2
+
+cols = int(width // blocks)
+rows = int(height // blocks)
+
+grid = []
+
+
+# Quit or Close the Game Window
+def close():
+    pygame.quit()
+    sys.exit()
+
+
+# Class for Each Spot in Grid
+class Spot():
+    def __init__(self):
+        self.color = border
+        self.neighbors = []
+        self.noAtoms = 0
+
+    def addNeighbors(self, i, j):
+        if i > 0:
+            self.neighbors.append(grid[i - 1][j])
+        if i < rows - 1:
+            self.neighbors.append(grid[i + 1][j])
+        if j < cols - 1:
+            self.neighbors.append(grid[i][j + 1])
+        if j > 0:
+            self.neighbors.append(grid[i][j - 1])
+
+
+# Initializing the Grid with "Empty or 0"
+def initializeGrid():
+    global grid, score, players
+    score = []
+    for i in range(noPlayers):
+        score.append(0)
+
+    players = []
+    for i in range(noPlayers):
+        players.append(playerColor[i])
+
+    grid = [[] for _ in range(cols)]
+    for i in range(cols):
+        for j in range(rows):
+            newObj = Spot()
+            grid[i].append(newObj)
+    for i in range(cols):
+        for j in range(rows):
+            grid[i][j].addNeighbors(i, j)
+
+
+# Draw the Grid in Pygame Window
+def drawGrid(currentIndex):
+    r = 0
+    c = 0
+    for i in range(width // blocks):
+        r += blocks
+        c += blocks
+        pygame.draw.line(display, players[currentIndex], (c, 0), (c, height))
+        pygame.draw.line(display, players[currentIndex], (0, r), (width, r))
+
+
+# Draw the Present Situation of Grid
+def showPresentGrid(vibrate=1):
+    r = -blocks
+    c = -blocks
+    padding = 2
+    for i in range(cols):
+        r += blocks
+        c = -blocks
+        for j in range(rows):
+            c += blocks
+            if grid[i][j].noAtoms == 0:
+                grid[i][j].color = border
+            elif grid[i][j].noAtoms == 1:
+                pygame.draw.ellipse(display, grid[i][j].color,
+                                    (r + blocks / 2 - d / 2 + vibrate, c + blocks / 2 - d / 2, d, d))
+            elif grid[i][j].noAtoms == 2:
+                pygame.draw.ellipse(display, grid[i][j].color, (r + 5, c + blocks / 2 - d / 2 - vibrate, d, d))
+                pygame.draw.ellipse(display, grid[i][j].color,
+                                    (r + d / 2 + blocks / 2 - d / 2 + vibrate, c + blocks / 2 - d / 2, d, d))
+            elif grid[i][j].noAtoms == 3:
+                angle = 90
+                x = r + (d / 2) * cos(radians(angle)) + blocks / 2 - d / 2
+                y = c + (d / 2) * sin(radians(angle)) + blocks / 2 - d / 2
+                pygame.draw.ellipse(display, grid[i][j].color, (x - vibrate, y, d, d))
+                x = r + (d / 2) * cos(radians(angle + 90)) + blocks / 2 - d / 2
+                y = c + (d / 2) * sin(radians(angle + 90)) + 5
+                pygame.draw.ellipse(display, grid[i][j].color, (x + vibrate, y, d, d))
+                x = r + (d / 2) * cos(radians(angle - 90)) + blocks / 2 - d / 2
+                y = c + (d / 2) * sin(radians(angle - 90)) + 5
+                pygame.draw.ellipse(display, grid[i][j].color, (x - vibrate, y, d, d))
+
+    pygame.display.update()
+
+
+# Increase the Atom when Clicked
+def addAtom(i, j, color):
+    grid[i][j].noAtoms += 1
+    grid[i][j].color = color
+    if grid[i][j].noAtoms >= len(grid[i][j].neighbors):
+        overFlow(grid[i][j], color)
+
+
+# Split the Atom when it Increases the "LIMIT"
+def overFlow(cell, color):
+    showPresentGrid()
+    cell.noAtoms = 0
+    for m in range(len(cell.neighbors)):
+        cell.neighbors[m].noAtoms += 1
+        cell.neighbors[m].color = color
+        if cell.neighbors[m].noAtoms >= len(cell.neighbors[m].neighbors):
+            overFlow(cell.neighbors[m], color)
+
+
+# Checking if Any Player has WON!
+def isPlayerInGame():
+    global score
+    playerScore = []
+    for i in range(noPlayers):
+        playerScore.append(0)
+    for i in range(cols):
+        for j in range(rows):
+            for k in range(noPlayers):
+                if grid[i][j].color == players[k]:
+                    playerScore[k] += grid[i][j].noAtoms
+    score = playerScore[:]
+
+
+# GAME OVER
+def gameOver(playerIndex):
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                close()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    close()
+                if event.key == pygame.K_r:
+                    gameLoop()
+
+        text = font.render("Player %d Won!" % (playerIndex + 1), True, white)
+        text2 = font.render("Press \'r\' to Reset!", True, white)
+
+        display.blit(text, (width / 3, height / 3))
+        display.blit(text2, (width / 3, height / 2))
+
+        pygame.display.update()
+        clock.tick(60)
+
+
+def checkWon():
+    num = 0
+    for i in range(noPlayers):
+        if score[i] == 0:
+            num += 1
+    if num == noPlayers - 1:
+        for i in range(noPlayers):
+            if score[i]:
+                return i
+
+    return 9999
+
+
+# Main Loop
+def gameLoop():
+    initializeGrid()
+    loop = True
+
+    turns = 0
+
+    currentPlayer = 0
+
+    vibrate = .5
+
+    while loop:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                close()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    close()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = pygame.mouse.get_pos()
+                i = x // blocks
+                j = y // blocks
+                if grid[i][j].color == players[currentPlayer] or grid[i][j].color == border:
+                    turns += 1
+                    addAtom(i, j, players[currentPlayer])
+                    currentPlayer += 1
+                    if currentPlayer >= noPlayers:
+                        currentPlayer = 0
+                if turns >= noPlayers:
+                    isPlayerInGame()
+
+        display.fill(background)
+        # Vibrate the Atoms in their Cells
+        vibrate *= -1
+
+        drawGrid(currentPlayer)
+        showPresentGrid(vibrate)
+
+        pygame.display.update()
+
+        res = checkWon()
+        if res < 9999:
+            gameOver(res)
+
+        clock.tick(20)
+
+
+gameLoop()

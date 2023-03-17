@@ -1,6 +1,22 @@
+import tkinter as tk
+from tkinter import ttk
 import pygame
 import sys
 from math import *
+
+#Welcome Page
+def play():
+    window.destroy()
+
+window=tk.Tk()
+window.geometry("400x450+600+200")
+window.configure(bg="grey")
+window.title("Chain Reaction Game")
+tk.Label(text="Welcome to Chain Reaction! Have Fun!", bg="yellow", width="300", height="2", font=("Calibri",13)).pack()
+
+play=tk.Button(window,text="Play",bg="Red",command=play)
+play.place(x=170,y=410)
+window.mainloop()
 
 # Initialization of Pygame
 pygame.init()

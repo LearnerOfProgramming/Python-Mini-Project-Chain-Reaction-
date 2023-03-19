@@ -6,13 +6,24 @@ from math import *
 
 #Welcome Page
 def play():
-    window.destroy()
+    global p
+    p=int(combo.get()) #Takes input of the number of players
+    window.destroy() #Closes the root window
 
 window=tk.Tk()
 window.geometry("400x450+600+200")
 window.configure(bg="grey")
 window.title("Chain Reaction Game")
 tk.Label(text="Welcome to Chain Reaction! Have Fun!", bg="yellow", width="300", height="2", font=("Calibri",13)).pack()
+
+nop=tk.Label(window,text="Number of Players",bg="grey",font=("Calibri",12))
+nop.place(x=5,y=200)
+combo = ttk.Combobox(
+    state="readonly",
+    values=["2", "3", "4"],
+    height="2"
+)
+combo.place(x=150,y=200)
 
 play=tk.Button(window,text="Play",bg="Red",command=play)
 play.place(x=170,y=410)
@@ -40,8 +51,10 @@ playerColor = [red, green, violet, yellow]
 font = pygame.font.SysFont("Times New Roman", 30)
 
 blocks = 40
-noPlayers = 4
-
+try:
+    noPlayers = p
+except NameError:
+    exit()
 pygame.display.set_caption("Chain Reaction %d Player" % noPlayers)
 
 score = []
@@ -262,7 +275,7 @@ def gameLoop():
         if res < 9999:
             gameOver(res)
 
-        clock.tick(20)
+        clock.tick(60)
 
 
 gameLoop()

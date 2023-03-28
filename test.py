@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import *
 import pygame
 import sys
 from math import *
@@ -11,22 +12,29 @@ def play():
     window.destroy() #Closes the root window
 
 window=tk.Tk()
-window.geometry("400x450+600+200")
+window.geometry("400x400+600+200")
 window.configure(bg="grey")
 window.title("Chain Reaction Game")
-tk.Label(text="Welcome to Chain Reaction! Have Fun!", bg="yellow", width="300", height="2", font=("Calibri",13)).pack()
 
-nop=tk.Label(window,text="Number of Players",bg="grey",font=("Calibri",12))
-nop.place(x=5,y=200)
+c=Canvas(window,bg='gray16',height=200,width=200)
+filename=PhotoImage(file="C:/Users/allai/Desktop/PPL Mini Project/Python-Mini-Project-Chain-Reaction-/bg.png")
+bg=Label(window,image=filename)
+bg.place(x=0,y=0,relheight=1,relwidth=1)
+
+tk.Label(text="Welcome to Chain Reaction! Have Fun!", bg="black", fg='white', width="400", height="2", font=("Calibri",16)).pack()
+
+nop=tk.Label(window,text="Number of Players",bg="black",fg='white',font=("Calibri",14))
+nop.place(x=40,y=195)
 combo = ttk.Combobox(
     state="readonly",
     values=["2", "3", "4"],
     height="2"
 )
-combo.place(x=150,y=200)
+combo.place(x=210,y=200)
 
-play=tk.Button(window,text="Play",bg="Red",command=play)
-play.place(x=170,y=410)
+play=tk.Button(window,text="Play",bg="Red",font=("Calibri",12,"bold"),command=play)
+play.place(x=170,y=350)
+c.pack()
 window.mainloop()
 
 # Initialization of Pygame
